@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RingCentral Recording Downloader · Five Star Tax Resolution</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+:root {
+  --bg:#f5f6fa;--white:#ffffff;--border:#e2e5ef;
+  --accent:#0057ff;--accent-light:#e8f0ff;
+  --accent2:#00b87a;--accent2-light:#e6f9f3;
+  --warn:#f59e0b;--warn-light:#fffbeb;
+  --danger:#ef4444;--danger-light:#fef2f2;
+  --text:#1a1d2e;--muted:#7b829e;--step-done:#00b87a;
+  --mono:'IBM Plex Mono',monospace;--sans:'Plus Jakarta Sans',sans-serif;
+  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;}
+.app{max-width:780px;margin:0 auto;padding:36px 20px 60px;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;box-shadow:var(--shadow);}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.logo{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.topbar-title{font-size:15px;font-weight:700;}
+.topbar-sub{font-size:12px;color:var(--muted);margin-top:1px;}
+.topbar-badge{background:var(--accent-light);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+
+.steps-row{display:flex;align-items:center;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;box-shadow:var(--shadow);overflow-x:auto;gap:0;}
+.step-item{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all 0.3s;flex-shrink:0;}
+.step-num.active{background:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--accent-light);}
+.step-num.done{background:var(--step-done);color:#fff;}
+.step-label{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;}
+.step-label.active{color:var(--text);}
+.step-label.done{color:var(--step-done);}
+.step-sep{width:32px;height:2px;background:var(--border);margin:0 4px;flex-shrink:0;transition:background 0.3s;}
+.step-sep.done{background:var(--step-done);}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;box-shadow:var(--shadow);overflow:hidden;}
+.card-header{display:flex;align-items:center;gap:12px;padding:18px 22px 14px;border-bottom:1px solid var(--border);}
+.step-circle{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-circle.green{background:var(--step-done);}
+.step-circle.grey{background:#c8cfdf;}
+.card-header h2{font-size:15px;font-weight:700;}
+.card-header p{font-size:12px;color:var(--muted);margin-top:2px;}
+.card-body{padding:22px;}
+.card.locked{opacity:0.5;pointer-events:none;}
+
+.field{display:flex;flex-direction:column;gap:6px;}
+.field-label{font-size:12px;font-weight:600;color:var(--text);}
+.field-note{font-size:11px;color:var(--muted);line-height:1.5;}
+.field-help{font-size:11px;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:2px;background:none;border:none;padding:0;font-family:var(--sans);font-weight:500;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+input[type=date],select{background:#f8f9fc;border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light);background:#fff;}
+.tooltip-box{display:none;background:#1a1d2e;color:#e2e8f0;font-size:12px;line-height:1.6;padding:10px 14px;border-radius:8px;margin-top:4px;}
+.tooltip-box.visible{display:block;}
+
+button{font-family:var(--sans);font-size:13px;font-weight:600;padding:10px 22px;border-radius:8px;border:none;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:#0046d4;box-shadow:0 4px 14px rgba(0,87,255,0.3);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.btn-green{background:var(--accent2);color:#fff;}
+.btn-green:hover{background:#009e68;box-shadow:0 4px 14px rgba(0,184,122,0.3);transform:translateY(-1px);}
+.btn-outline-warn{background:transparent;color:var(--warn);border:1.5px solid var(--warn);}
+.btn-outline-warn:hover{background:var(--warn-light);}
+.btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;align-items:center;}
+
+.oauth-btn{display:flex;align-items:center;justify-content:center;gap:12px;background:#ff8800;color:#fff;border:none;border-radius:10px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;width:100%;max-width:340px;margin:0 auto;transition:all 0.2s;box-shadow:0 4px 14px rgba(255,136,0,0.3);}
+.oauth-btn:hover{background:#e67a00;transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,136,0,0.4);}
+.login-center{text-align:center;padding:8px 0 4px;}
+.login-note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;}
+
+.status-bar{padding:12px 16px;border-radius:8px;font-size:13px;display:none;align-items:center;gap:10px;margin-top:14px;font-weight:500;}
+.status-bar.info{background:var(--accent-light);border:1px solid #b3ceff;color:var(--accent);display:flex;}
+.status-bar.success{background:var(--accent2-light);border:1px solid #b3edda;color:#007a51;display:flex;}
+.status-bar.error{background:var(--danger-light);border:1px solid #fecaca;color:var(--danger);display:flex;}
+.spinner{width:15px;height:15px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.progress-wrap{margin-bottom:16px;display:none;}
+.progress-wrap.visible{display:block;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 0.3s;width:0%;}
+
+.table-wrap{overflow-x:auto;margin-top:8px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--border);}
+td{padding:11px 12px;border-bottom:1px solid #f0f2f8;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafbff;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-inbound{background:var(--accent2-light);color:#007a51;}
+.badge-outbound{background:var(--accent-light);color:var(--accent);}
+.dur{font-family:var(--mono);font-size:12px;color:var(--muted);}
+.c-name{font-weight:600;}
+.c-num{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px;}
+.dl-btn{background:#f0f4ff;border:1.5px solid #c7d8ff;color:var(--accent);font-size:11px;font-weight:600;padding:5px 11px;border-radius:6px;white-space:nowrap;}
+.dl-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+.dl-btn.done{background:var(--accent2-light);border-color:#b3edda;color:#007a51;}
+
+.select-all-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.select-all-row label{font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:#f8f9fc;border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center;}
+.stat-val{font-size:26px;font-weight:700;color:var(--accent);line-height:1;}
+.stat-val.g{color:var(--accent2);}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px;font-weight:500;}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
+.empty-state .icon{font-size:32px;margin-bottom:10px;}
+
+.log{background:#1a1d2e;border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:11px;color:#6b7a99;max-height:130px;overflow-y:auto;line-height:1.8;display:none;margin-top:16px;}
+.log.visible{display:block;}
+.log-line.ok{color:#34d399;}
+.log-line.err{color:#f87171;}
+.log-line.info{color:#7eb8ff;}
+
+.instruction-box{background:var(--accent-light);border:1px solid #c7d8ff;border-radius:10px;padding:16px 18px;font-size:13px;color:#1a3a7a;line-height:1.6;margin-bottom:20px;}
+.instruction-box strong{color:var(--accent);}
+.instruction-box ol{padding-left:18px;margin-top:8px;}
+.instruction-box ol li{margin-bottom:5px;}
+
+.user-bar{display:flex;align-items:center;justify-content:space-between;background:var(--accent2-light);border:1px solid #b3edda;border-radius:10px;padding:12px 16px;margin-bottom:20px;}
+.user-bar-left{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#007a51;}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+
+@media(max-width:560px){.grid2{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}.step-sep{width:16px;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">🎙️</div>
+      <div>
+        <div class="topbar-title">RingCentral Recording Downloader</div>
+        <div class="topbar-sub">Five Star Tax Resolution · Internal Tool</div>
+      </div>
+    </div>
+    <div class="topbar-badge">v2.0</div>
+  </div>
+
+  <div class="instruction-box">
+    <strong>👋 Hi! Here's all you need to do:</strong>
+    <ol>
+      <li><strong>Step 1 — Log in</strong> with your RingCentral account (click the orange button)</li>
+      <li><strong>Step 2 — Fetch</strong> your recordings by picking a date range</li>
+      <li><strong>Step 3 — Download</strong> the recordings — files save to your Downloads folder</li>
+      <li>Send the downloaded files to <strong>Walter</strong> via Slack, email, or Google Drive</li>
+    </ol>
+  </div>
+
+  <div class="steps-row">
+    <div class="step-item"><div class="step-num active" id="sn1">1</div><div class="step-label active" id="sl1">Log In</div></div>
+    <div class="step-sep" id="sep1"></div>
+    <div class="step-item"><div class="step-num" id="sn2">2</div><div class="step-label" id="sl2">Fetch Recordings</div></div>
+    <div class="step-sep" id="sep2"></div>
+    <div class="step-item"><div class="step-num" id="sn3">3</div><div class="step-label" id="sl3">Download &amp; Send</div></div>
+  </div>
+
+  <!-- User bar shown after login -->
+  <div class="user-bar" id="userBar" style="display:none">
+    <div class="user-bar-left">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <span id="userName">Logged in</span>
+    </div>
+    <button class="btn-ghost" style="padding:6px 14px;font-size:12px" onclick="logout()">Log out</button>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card" id="cardLogin">
+    <div class="card-header">
+      <div class="step-circle">1</div>
+      <div>
+        <h2>Log in with your RingCentral account</h2>
+        <p>Click the button — a RingCentral login window will open</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="login-center">
+        <button class="oauth-btn" onclick="startOAuth()">🔐 Log in with RingCentral</button>
+        <div class="login-note">Sign in with your <strong>Five Star work email</strong> (e.g. yourname@fivestartaxhelp.com) and password.</div>
+      </div>
+      <div class="status-bar" id="authStatus"><span id="authIcon"></span><span id="authMsg"></span></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card locked" id="cardFetch">
+    <div class="card-header">
+      <div class="step-circle grey" id="sc2">2</div>
+      <div>
+        <h2>Choose a date range and fetch your recordings</h2>
+        <p>Only your own recordings will appear</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="grid2">
+        <div class="field">
+          <div class="field-label">From date</div>
+          <input type="date" id="dateFrom">
+        </div>
+        <div class="field">
+          <div class="field-label">To date</div>
+          <input type="date" id="dateTo">
+        </div>
+        <div class="field">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="field-label">Call direction</span>
+            <button class="field-help" onclick="toggleTip('t-dir')">What's this?</button>
+          </div>
+          <select id="direction">
+            <option value="">All calls (recommended)</option>
+            <option value="Inbound">Inbound only — calls I received</option>
+            <option value="Outbound">Outbound only — calls I made</option>
+          </select>
+          <div class="tooltip-box" id="t-dir"><strong>Inbound</strong> = someone called you.<br><strong>Outbound</strong> = you called someone.<br>Leave as "All calls" if unsure.</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Max recordings to load</div>
+          <select id="maxResults">
+            <option value="100">100 (recommended)</option>
+            <option value="250">250</option>
+            <option value="500">500</option>
+            <option value="1000">1000 (load all)</option>
+          </select>
+        </div>
+      </div>
+      <div class="status-bar" id="fetchStatus"><span id="fetchIcon"></span><span id="fetchMsg"></span></div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="fetchRecordings()">📋 Fetch My Recordings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card" id="cardResults" style="display:none">
+    <div class="card-header">
+      <div class="step-circle green">3</div>
+      <div>
+        <h2>Select and download your recordings</h2>
+        <p>Files save to your Downloads folder. Then send them to Walter.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-label"><span id="progressLabel">Downloading...</span><span id="progressPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+      <div class="select-all-row">
+        <label><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" checked> Select / deselect all</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-green" onclick="downloadSelected()">⬇ Download Selected</button>
+          <button class="btn-outline-warn" onclick="exportCSV()">📄 Export list as CSV</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th></th><th>Date &amp; Time</th><th>Contact</th><th>Direction</th><th>Duration</th><th>Save</th></tr></thead>
+          <tbody id="recBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" style="display:none"><div class="icon">📭</div>No recordings found for the selected date range.</div>
+      </div>
+      <div class="log" id="logBox"></div>
+    </div>
+  </div>
+
+</div>
+<script>
+const CLIENT_ID = 'YbOKfeNgFkgbVC7b1VTIVz';
+const CLIENT_SECRET = 'ajbmHS8Yu82d65yNlS6OBSWcdOXdd59XbfvPR6r5gILh';
+const REDIRECT  = 'https://qiutan-crypto.github.io/RingCentral-Recording-Downloader/';
+const RC        = 'https://platform.ringcentral.com';
+
+let token = null, recs = [];
+
+window.onload = () => {
+  const t=new Date(), f=new Date(t); f.setDate(t.getDate()-30);
+  document.getElementById('dateTo').value   = iso(t);
+  document.getElementById('dateFrom').value = iso(f);
+  const code = new URLSearchParams(window.location.search).get('code');
+  if (code) handleOAuthCode(code);
+};
+
+const iso = d => d.toISOString().split('T')[0];
+function toggleTip(id){ document.getElementById(id).classList.toggle('visible'); }
+
+function setStep(n){
+  for(let i=1;i<=3;i++){
+    const num=document.getElementById('sn'+i),lbl=document.getElementById('sl'+i);
+    if(i<n){num.className='step-num done';num.textContent='✓';lbl.className='step-label done';if(i<3)document.getElementById('sep'+i).classList.add('done');}
+    else if(i===n){num.className='step-num active';num.textContent=i;lbl.className='step-label active';}
+    else{num.className='step-num';num.textContent=i;lbl.className='step-label';}
+  }
+}
+
+function status(id,iid,mid,msg,type,spin=false){
+  const b=document.getElementById(id); b.className='status-bar '+type;
+  document.getElementById(iid).innerHTML=spin?'<div class="spinner"></div>':'';
+  document.getElementById(mid).textContent=msg;
+}
+function log(msg,type='info'){
+  const b=document.getElementById('logBox'); b.classList.add('visible');
+  const d=document.createElement('div'); d.className='log-line '+type;
+  d.textContent=`[${new Date().toLocaleTimeString()}] ${msg}`; b.appendChild(d); b.scrollTop=b.scrollHeight;
+}
+
+function startOAuth(){
+  const state=Math.random().toString(36).slice(2);
+  sessionStorage.setItem('rc_state',state);
+  const p=new URLSearchParams({response_type:'code',client_id:CLIENT_ID,redirect_uri:REDIRECT,state});
+  window.location.href=`${RC}/restapi/oauth/authorize?${p}`;
+}
+
+async function handleOAuthCode(code){
+  status('authStatus','authIcon','authMsg','Completing login...','info',true);
+  window.history.replaceState({},document.title,window.location.pathname);
+  try{
+    const body=new URLSearchParams({grant_type:'authorization_code',code,redirect_uri:REDIRECT});
+    const res=await fetch(`${RC}/restapi/oauth/token`,{
+      method:'POST',
+      headers:{'Authorization':'Basic '+btoa(CLIENT_ID+':'+CLIENT_SECRET),'Content-Type':'application/x-www-form-urlencoded'},
+      body
+    });
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error_description||data.message||'Login failed');
+    token=data.access_token;
+    await loadUserInfo();
+    onLoggedIn();
+  }catch(e){
+    status('authStatus','authIcon','authMsg','Login failed: '+e.message,'error');
+  }
+}
+
+async function loadUserInfo(){
+  try{
+    const res=await fetch(`${RC}/restapi/v1.0/account/~/extension/~`,{headers:{Authorization:'Bearer '+token}});
+    const d=await res.json();
+    const name=d.name||d.contact?.firstName||'You';
+    const initials=name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    document.getElementById('userName').textContent=name+' — logged in';
+    document.getElementById('userAvatar').textContent=initials;
+  }catch(e){}
+}
+
+function onLoggedIn(){
+  document.getElementById('cardLogin').style.display='none';
+  document.getElementById('userBar').style.display='flex';
+  const fc=document.getElementById('cardFetch');
+  fc.classList.remove('locked');
+  document.getElementById('sc2').className='step-circle';
+  setStep(2);
+  fc.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function logout(){
+  token=null;
+  document.getElementById('cardLogin').style.display='block';
+  document.getElementById('userBar').style.display='none';
+  document.getElementById('cardFetch').classList.add('locked');
+  document.getElementById('cardResults').style.display='none';
+  document.getElementById('sc2').className='step-circle grey';
+  document.getElementById('authStatus').className='status-bar';
+  setStep(1);
+}
+
+async function fetchRecordings(){
+  if(!token) return;
+  const from=document.getElementById('dateFrom').value,to=document.getElementById('dateTo').value;
+  const dir=document.getElementById('direction').value,maxR=parseInt(document.getElementById('maxResults').value);
+  status('fetchStatus','fetchIcon','fetchMsg','Loading your recordings...','info',true);
+  recs=[]; let page=1;
+  try{
+    while(recs.length<maxR){
+      const p=new URLSearchParams({type:'Voice',withRecording:'true',dateFrom:from+'T00:00:00Z',dateTo:to+'T23:59:59Z',perPage:100,page});
+      if(dir) p.set('direction',dir);
+      const r=await fetch(`${RC}/restapi/v1.0/account/~/extension/~/call-log?${p}`,{headers:{Authorization:'Bearer '+token}});
+      const d=await r.json();
+      if(!r.ok) throw new Error(d.message||'Fetch failed');
+      const rows=d.records||[];
+      recs.push(...rows.filter(x=>x.recording));
+      if(!d.navigation?.nextPage||rows.length<100) break;
+      page++;
+    }
+    recs=recs.slice(0,maxR);
+    renderTable();
+    status('fetchStatus','fetchIcon','fetchMsg',`✓ Found ${recs.length} recording(s). Select what you want below.`,'success');
+    setStep(3);
+    document.getElementById('cardResults').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ status('fetchStatus','fetchIcon','fetchMsg','Error: '+e.message,'error'); }
+}
+
+function renderTable(){
+  const card=document.getElementById('cardResults'); card.style.display='block';
+  if(!recs.length){ document.getElementById('emptyState').style.display='block'; document.getElementById('statsRow').innerHTML=''; document.getElementById('recBody').innerHTML=''; return; }
+  document.getElementById('emptyState').style.display='none';
+  const inb=recs.filter(r=>r.direction==='Inbound').length,out=recs.filter(r=>r.direction==='Outbound').length;
+  document.getElementById('statsRow').innerHTML=`
+    <div class="stat"><div class="stat-val">${recs.length}</div><div class="stat-label">Total Recordings</div></div>
+    <div class="stat"><div class="stat-val g">${inb}</div><div class="stat-label">Inbound Calls</div></div>
+    <div class="stat"><div class="stat-val">${out}</div><div class="stat-label">Outbound Calls</div></div>`;
+  document.getElementById('recBody').innerHTML=recs.map((r,i)=>{
+    const dt=new Date(r.startTime),o=r.direction==='Inbound'?r.from:r.to;
+    return `<tr>
+      <td><input type="checkbox" class="rc" data-i="${i}" checked></td>
+      <td><div style="font-weight:500">${dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div><div class="c-num">${dt.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div></td>
+      <td><div class="c-name">${o?.name||'—'}</div><div class="c-num">${o?.phoneNumber||o?.extensionNumber||''}</div></td>
+      <td><span class="badge ${r.direction==='Inbound'?'badge-inbound':'badge-outbound'}">${r.direction}</span></td>
+      <td class="dur">${fmtD(r.duration)}</td>
+      <td><button class="dl-btn" id="db-${i}" onclick="dlOne(${i})">⬇ Save</button></td>
+    </tr>`;
+  }).join('');
+}
+
+const fmtD=s=>s?`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`:'—';
+function toggleAll(v){ document.querySelectorAll('.rc').forEach(c=>c.checked=v); }
+
+async function dlOne(i, retries=5){
+  const r=recs[i]; if(!r?.recording?.contentUri) return false;
+  const btn=document.getElementById('db-'+i); btn.textContent='⏳'; btn.disabled=true;
+  for(let attempt=1; attempt<=retries; attempt++){
+    try{
+      const res=await fetch(r.recording.contentUri,{headers:{Authorization:'Bearer '+token}});
+      if(res.status===429){
+        const wait = Math.min(15 * Math.pow(2, attempt-1), 120);
+        log(`Rate limited. Waiting ${wait}s before retry ${attempt}/${retries}...`,'info');
+        for(let s=wait; s>0; s--){
+          btn.textContent=`⏳ ${s}s`;
+          await new Promise(r=>setTimeout(r,1000));
+        }
+        btn.textContent=`⏳ retry ${attempt}`;
+        continue;
+      }
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const blob=await res.blob(),name=fname(r);
+      dl(blob,name); btn.textContent='✓ Saved'; btn.classList.add('done'); log('Saved: '+name,'ok');
+      return true;
+    }catch(e){
+      if(attempt===retries){ btn.textContent='✗ Error'; btn.disabled=false; log('Failed after '+retries+' attempts: '+e.message,'err'); return false; }
+      await new Promise(r=>setTimeout(r,5000));
+    }
+  }
+  btn.textContent='✗ Error'; btn.disabled=false; return false;
+}
+
+async function downloadSelected(){
+  const checked=[...document.querySelectorAll('.rc:checked')];
+  if(!checked.length) return;
+  const wrap=document.getElementById('progressWrap'),fill=document.getElementById('progressFill'),pct=document.getElementById('progressPct'),lbl=document.getElementById('progressLabel');
+  wrap.classList.add('visible'); let done=0, failed=0;
+  for(const cb of checked){
+    const ok=await dlOne(parseInt(cb.dataset.i));
+    if(ok) done++; else failed++;
+    const p=Math.round((done+failed)/checked.length*100);
+    fill.style.width=p+'%'; pct.textContent=p+'%';
+    lbl.textContent=`Saved ${done} of ${checked.length} recordings${failed?' ('+failed+' failed)':''}`;
+    await new Promise(r=>setTimeout(r,4000));
+  }
+  if(failed===0)
+    status('fetchStatus','fetchIcon','fetchMsg',`✓ All ${done} recordings saved! You can now send them to Walter.`,'success');
+  else
+    status('fetchStatus','fetchIcon','fetchMsg',`Downloaded ${done} of ${done+failed}. ${failed} failed — click their individual Save button to retry.`,'warn');
+}
+
+function exportCSV(){
+  if(!recs.length) return;
+  const rows=[['Date','Time','Contact Name','Phone Number','Direction','Duration (s)','Recording ID']];
+  recs.forEach(r=>{const dt=new Date(r.startTime),o=r.direction==='Inbound'?r.from:r.to;rows.push([dt.toLocaleDateString(),dt.toLocaleTimeString(),o?.name||'',o?.phoneNumber||o?.extensionNumber||'',r.direction,r.duration||0,r.recording?.id||'']);});
+  dl(new Blob([rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')],{type:'text/csv'}),'ringcentral_recordings.csv');
+}
+
+function fname(r){
+  const dt=new Date(r.startTime),stamp=dt.toISOString().replace(/[:.]/g,'').replace('T','-').slice(0,15);
+  const o=r.direction==='Inbound'?r.from:r.to,who=(o?.name||o?.phoneNumber||'unknown').replace(/[^a-zA-Z0-9]/g,'_');
+  return `RC_${stamp}_${r.direction}_${who}.mp3`;
+}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}
+</script>
+</body>
+</html>
